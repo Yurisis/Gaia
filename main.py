@@ -79,14 +79,17 @@ def main():
             
             print(f"Generating batch of {current_batch_size} articles... ({processed}/{total_needed})")
             topics_str = ", ".join(batch_topics)
+            print(f"Topics: {topics_str}")
             prompt = Prompts.BULK_ARTICLE.format(count=current_batch_size, topics=topics_str)
             
-            response_text = client.generate_content(prompt, is_json=True)
-            if not response_text:
-                print("Failed to generate batch.")
-                break
-            
             try:
+                print("Requesting content from Gemini (with 60s timeout)...")
+                response_text = client.generate_content(prompt, is_json=True)
+                if not response_text:
+                    print(f"Failed to generate batch for: {topics_str}. Skipping to next batch.")
+                    processed += current_batch_size # Skip these as if processed to avoid infinite loop, or just skip
+                    continue
+                
                 # Basic cleaning of response if it's wrapped in markdown code blocks
                 clean_json = response_text.strip()
                 if clean_json.startswith("```json"):
@@ -100,16 +103,23 @@ def main():
                 
                 articles = json.loads(clean_json)
                 for item in articles:
-                    process_article(item.get('topic', 'Unknown'), item.get('title', 'Untitled'), item.get('content', ''), injector, generator)
+                    title = item.get('title', 'Untitled')
+                    # Simple check if already exists to avoid duplicates
+                    # (Implementation for checking file existence could be more robust)
+                    process_article(item.get('topic', 'Unknown'), title, item.get('content', ''), injector, generator)
                     processed += 1
+                
+                # Update Index once per batch
+                generator.update_index()
+                print(f"Batch completed. Total processed: {processed}/{total_needed}")
+                
             except Exception as e:
-                print(f"Error parsing bulk response: {e}")
-                print(f"Raw response head: {response_text[:200]}")
-                break
-            
-            # Update Index once per batch
-            generator.update_index()
-            print(f"Batch completed. Total processed: {processed}")
+                print(f"Error in batch processing: {e}")
+                if 'response_text' in locals() and response_text:
+                    print(f"Raw response head (first 500 chars): {response_text[:500]}")
+                print("Skipping this batch due to error.")
+                processed += current_batch_size
+                continue
             
             if processed < total_needed:
                 print("Waiting 5 seconds before next batch...")

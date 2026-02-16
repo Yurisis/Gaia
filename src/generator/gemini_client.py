@@ -12,15 +12,20 @@ class GeminiClient:
         try:
             config = {}
             if is_json:
-                config = {"response_mime_type": "application/json"}
+                config["response_mime_type"] = "application/json"
+            
+            # Use http_options for timeout
+            config["http_options"] = types.HttpOptions(timeout=60000) # milliseconds or dict
             
             response = self.client.models.generate_content(
                 model=self.model_name,
                 contents=prompt,
-                config=config
+                config=types.GenerateContentConfig(**config)
             )
             
-            print(f"Generated text length: {len(response.text)}")
+            if not response or not response.text:
+                print("Empty response from Gemini.")
+                return None
             return response.text
         except Exception as e:
             import traceback
