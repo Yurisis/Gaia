@@ -70,7 +70,7 @@ def main():
 
         total_needed = args.bulk
         processed = 0
-        batch_size = 5
+        batch_size = 3
 
         while processed < total_needed:
             current_batch_size = min(batch_size, total_needed - processed)
@@ -83,7 +83,7 @@ def main():
             prompt = Prompts.BULK_ARTICLE.format(count=current_batch_size, topics=topics_str)
             
             try:
-                print("Requesting content from Gemini (with 60s timeout)...")
+                print("Requesting content from Gemini (with 180s timeout)...")
                 response_text = client.generate_content(prompt, is_json=True)
                 if not response_text:
                     print(f"Failed to generate batch for: {topics_str}. Skipping to next batch.")
