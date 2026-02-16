@@ -10,6 +10,17 @@ from src.publisher.html_generator import HtmlGenerator
 from src.publisher.affiliate import AffiliateInjector
 from config.settings import AMAZON_TAG, RAKUTEN_ID
 
+def deploy_to_github():
+    """Automates the git push process."""
+    print("Deploying to GitHub...")
+    try:
+        os.system('git add .')
+        os.system('git commit -m "Auto-deploy: New content generated"')
+        os.system('git push origin main')
+        print("Deploy successful.")
+    except Exception as e:
+        print(f"Deploy failed: {e}")
+
 def process_article(topic, title, content, injector, generator):
     """Common logic to process a single article."""
     # 2. Inject Affiliate Links
@@ -103,6 +114,9 @@ def main():
             if processed < total_needed:
                 print("Waiting 5 seconds before next batch...")
                 time.sleep(5)
+        
+        # Final deploy
+        deploy_to_github()
 
     else:
         # Determine Topic
@@ -142,6 +156,7 @@ def main():
         
         # Update Index
         generator.update_index()
+        deploy_to_github()
         print("Done!")
 
 if __name__ == "__main__":
