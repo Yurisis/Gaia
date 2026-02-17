@@ -1,5 +1,6 @@
 import os
 import markdown
+import re
 from datetime import datetime
 
 class HtmlGenerator:
@@ -11,10 +12,11 @@ class HtmlGenerator:
     def generate_article(self, title, markdown_content, filename):
         """Converts Markdown to HTML and saves it."""
         
-        # Enable attribute lists extension if needed, but for now we rely on standard md
-        # or we might need to pre-process content to inject classes if markdown extension is not available.
-        # But prompts will generate raw HTML div blocks which markdown parser often leaves as is.
-        html_content = markdown.markdown(markdown_content, extensions=['extra'])
+        # Process Shortcodes before Markdown conversion
+        processed_content = self.process_shortcodes(markdown_content)
+
+        # Enable attribute lists extension if needed
+        html_content = markdown.markdown(processed_content, extensions=['extra'])
         
         template = f"""
         <!DOCTYPE html>
@@ -103,6 +105,39 @@ class HtmlGenerator:
         print(f"Article saved to: {filepath}")
         return filepath
 
+    def process_shortcodes(self, content):
+        """Replaces custom shortcodes with HTML structures."""
+        
+        # Chat Left (User)
+        # Pattern: [[CHAT_L: message]]
+        def repl_chat_l(match):
+            msg = match.group(1)
+            return f"""
+<div class="chat-box">
+    <div class="chat-face"><img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Felix" alt="User"></div>
+    <div class="chat-area">
+        <div class="chat-bubble">{msg}</div>
+    </div>
+</div>
+"""
+        content = re.sub(r'\[\[CHAT_L:\s*(.*?)\]\]', repl_chat_l, content, flags=re.DOTALL)
+
+        # Chat Right (Agent)
+        # Pattern: [[CHAT_R: message]]
+        def repl_chat_r(match):
+            msg = match.group(1)
+            return f"""
+<div class="chat-box right">
+    <div class="chat-face"><img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Aneka" alt="Agent"></div>
+    <div class="chat-area">
+        <div class="chat-bubble">{msg}</div>
+    </div>
+</div>
+"""
+        content = re.sub(r'\[\[CHAT_R:\s*(.*?)\]\]', repl_chat_r, content, flags=re.DOTALL)
+
+        return content
+
     def update_index(self):
         """Updates the index.html file with a list of all articles."""
         files = [f for f in os.listdir(self.output_dir) if f.startswith("article_") and f.endswith(".html")]
@@ -110,7 +145,6 @@ class HtmlGenerator:
 
         links = ""
         for f in files:
-            # Ideally we would extract the title from the file, but for now we use the filename
             links += f'<li><a href="{f}">{f}</a></li>\n'
 
         template = f"""

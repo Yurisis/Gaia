@@ -43,17 +43,17 @@ class AffiliateInjector:
         rak_link = self.generate_search_link(keyword, "rakuten")
         
         card_html = f"""
-        <div class="product-card">
-            <div class="product-img">📦</div>
-            <div class="product-info">
-                <div class="product-title">{keyword} (検索結果)</div>
-                <div class="product-btn-group">
-                    <a href="{amz_link}" class="btn btn-amazon" target="_blank">Amazonで探す</a>
-                    <a href="{rak_link}" class="btn btn-rakuten" target="_blank">楽天で探す</a>
-                </div>
-            </div>
+<div class="product-card">
+    <div class="product-img">📦</div>
+    <div class="product-info">
+        <div class="product-title">{keyword} (検索結果)</div>
+        <div class="product-btn-group">
+            <a href="{amz_link}" class="btn btn-amazon" target="_blank">Amazonで探す</a>
+            <a href="{rak_link}" class="btn btn-rakuten" target="_blank">楽天で探す</a>
         </div>
-        """
+    </div>
+</div>
+"""
         return card_html
 
     def generate_search_link(self, keyword, platform="amazon"):

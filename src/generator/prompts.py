@@ -10,23 +10,14 @@ class Prompts:
     - 例：「マウス」→「ロジクール マウス 人差し指が痛くならない」
 
     【視覚的要素の導入について（重要）】
-    記事の見た目をリッチにするため、**以下のHTMLタグをMarkdownの中に直接書き込んでください**。
+    記事の見た目をリッチにするため、**以下の専用記法とHTMLタグを使ってください**。
 
     1. **吹き出し会話**: 読者の悩みと、あなたの回答を会話形式で書く。
-       <div class="chat-box">
-           <div class="chat-face"><img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Felix" alt="悩み"></div>
-           <div class="chat-area">
-               <div class="chat-bubble">「（読者の悩み）...で困ってるんです」</div>
-           </div>
-       </div>
-       <div class="chat-box right">
-           <div class="chat-face"><img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Aneka" alt="回答"></div>
-           <div class="chat-area">
-               <div class="chat-bubble">「それなら、この商品が解決しますよ！」</div>
-           </div>
-       </div>
+       - 読者の悩み: [[CHAT_L: ここに悩みを書く]]
+       - あなたの回答: [[CHAT_R: ここに解決策を書く]]
+       ※ 必ず `[[CHAT_L: ...]]` の形式を守ってください。
 
-    2. **メリット・デメリット**: 必ずこのボックスを使う。
+    2. **メリット・デメリット**: 必ずこのボックスを使う。リスト形式(ul/li)で書くこと。
        <div class="merit-box">
        <ul>
            <li>メリット1...</li>
@@ -56,7 +47,7 @@ class Prompts:
        - 【ニッチキーワード】+ベネフィット+数字
 
     2. **リード文**（冒頭に必ず吹き出し会話を入れる）
-       - [吹き出し:悩み] -> [吹き出し:解決] -> 共感・結論・理由
+       - [[CHAT_L:悩み]] -> [[CHAT_R:解決]] -> 共感・結論・理由
 
     3. **見出しH2：〇〇を導入して変わったこと【ベネフィット】**
        - <div class="rating-box">による評価を入れる。
@@ -75,7 +66,7 @@ class Prompts:
     7. **まとめ**
        - 再確認と最後のひと押し。
 
-    フォーマット: Markdown形式ですが、上記のHTMLタグはそのまま（コードブロックにせず）出力してください。
+    フォーマット: Markdown形式ですが、上記のタグ/記法はそのまま出力してください。
     """
 
     BULK_ARTICLE = """
@@ -86,11 +77,11 @@ class Prompts:
 
     必須要件:
     1. **ニッチ特化**: 単なる商品紹介ではなく、「特定の悩み」を解決する記事にする。
-    2. **HTML装飾**: 以下のタグを使用する。
-       - <div class="chat-box">...</div> (悩み会話)
-       - <div class="merit-box">...</div> (メリット)
-       - <div class="demerit-box">...</div> (デメリット)
-       - <div class="rating-box"><span class="stars">★★★★★</span></div> (評価)
+    2. **HTML装飾**:
+       - 会話: [[CHAT_L: 悩み...]] / [[CHAT_R: 解決...]]
+       - メリット: <div class="merit-box"><ul><li>...</li></ul></div>
+       - デメリット: <div class="demerit-box"><ul><li>...</li></ul></div>
+       - 評価: <div class="rating-box"><span class="stars">★★★★★</span></div>
     3. **断定・平易**: 小学5年生でもわかる言葉で言い切る。
 
     JSONフォーマット:
@@ -98,7 +89,7 @@ class Prompts:
       {{
         "topic": "元のトピック名", 
         "title": "【ニッチキーワード】+ベネフィット+数字のタイトル", 
-        "content": "上記のHTMLタグを含んだMarkdown形式の本文（挨拶なし）"
+        "content": "上記のタグを含んだMarkdown形式の本文（挨拶なし）"
       }},
       ...
     ]
