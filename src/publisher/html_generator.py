@@ -4,8 +4,9 @@ import re
 from datetime import datetime
 
 class HtmlGenerator:
-    def __init__(self, output_dir="docs"):
+    def __init__(self, output_dir="docs", base_url="https://yurisis.github.io/Gaia"):
         self.output_dir = output_dir
+        self.base_url = base_url
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
 
@@ -18,6 +19,13 @@ class HtmlGenerator:
         # Enable attribute lists extension if needed
         html_content = markdown.markdown(processed_content, extensions=['extra'])
         
+        # OGP Description (First 100 chars of content, roughly)
+        # Strip HTML tags for description if possible, or just use title
+        description = f"{title}に関する詳細記事です。"
+        
+        # Article URL
+        article_url = f"{self.base_url}/{filename}"
+
         template = f"""
         <!DOCTYPE html>
         <html lang="ja">
@@ -25,7 +33,16 @@ class HtmlGenerator:
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>{title}</title>
-            <meta name="description" content="{title}に関する詳細記事です。">
+            <meta name="description" content="{description}">
+            
+            <!-- OGP Tags -->
+            <meta property="og:title" content="{title}" />
+            <meta property="og:type" content="article" />
+            <meta property="og:url" content="{article_url}" />
+            <meta property="og:description" content="{description}" />
+            <meta property="og:site_name" content="Gaia Blog" />
+            <meta property="og:locale" content="ja_JP" />
+
             <style>
                 /* Common */
                 body {{ font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; }}
@@ -138,14 +155,82 @@ class HtmlGenerator:
 
         return content
 
+    def generate_sitemap(self):
+        """Generates sitemap.xml."""
+        files = [f for f in os.listdir(self.output_dir) if f.startswith("article_") and f.endswith(".html")]
+        files.sort(reverse=True)
+
+        sitemap_content = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+"""
+        today = datetime.now().strftime("%Y-%m-%d")
+        
+        # Add index
+        sitemap_content += f"""    <url>
+        <loc>{self.base_url}/index.html</loc>
+        <lastmod>{today}</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+"""
+
+        for f in files:
+            file_url = f"{self.base_url}/{f}"
+            sitemap_content += f"""    <url>
+        <loc>{file_url}</loc>
+        <lastmod>{today}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+"""
+        
+        sitemap_content += "</urlset>"
+        
+        with open(os.path.join(self.output_dir, "sitemap.xml"), 'w', encoding='utf-8') as f:
+            f.write(sitemap_content)
+        print("Updated sitemap.xml")
+
     def update_index(self):
-        """Updates the index.html file with a list of all articles."""
+        """Updates the index.html file with a nice grid layout."""
         files = [f for f in os.listdir(self.output_dir) if f.startswith("article_") and f.endswith(".html")]
         files.sort(reverse=True) # Newest first
 
-        links = ""
+        # Extract titles from files to display in index
+        articles_data = []
         for f in files:
-            links += f'<li><a href="{f}">{f}</a></li>\n'
+            path = os.path.join(self.output_dir, f)
+            title = f # Default
+            try:
+                with open(path, 'r', encoding='utf-8') as file:
+                    content = file.read()
+                    # regex to parse <title>...</title>
+                    m = re.search(r'<title>(.*?)</title>', content)
+                    if m:
+                        title = m.group(1)
+            except:
+                pass
+            
+            # Create a clean date from filename if possible
+            # article_20260217... -> 2026-02-17
+            date_str = "2026"
+            m_date = re.search(r'article_(\d{8})_', f)
+            if m_date:
+                d = m_date.group(1)
+                date_str = f"{d[:4]}-{d[4:6]}-{d[6:]}"
+
+            articles_data.append({'file': f, 'title': title, 'date': date_str})
+
+        cards_html = ""
+        for item in articles_data:
+            cards_html += f"""
+            <a href="{item['file']}" class="card">
+                <div class="card-content">
+                    <div class="card-date">{item['date']}</div>
+                    <h2 class="card-title">{item['title']}</h2>
+                    <div class="card-readmore">Read More →</div>
+                </div>
+            </a>
+            """
 
         template = f"""
         <!DOCTYPE html>
@@ -153,25 +238,47 @@ class HtmlGenerator:
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Gaia Blog</title>
+            <title>Gaia Blog - Automated Tech & Life Hacks</title>
+            <meta name="description" content="AIが自動生成する最新のガジェット・ライフハックブログ。">
             <style>
-                body {{ font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; }}
-                h1 {{ border-bottom: 2px solid #eee; padding-bottom: 10px; }}
-                ul {{ list-style-type: none; padding: 0; }}
-                li {{ margin: 10px 0; padding: 10px; background: #f9f9f9; border-radius: 4px; }}
-                a {{ text-decoration: none; color: #333; font-weight: bold; display: block; }}
-                a:hover {{ color: #3498db; }}
+                body {{ font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f4f6f8; color: #333; }}
+                header {{ text-align: center; margin-bottom: 50px; padding: 40px 0; }}
+                h1 {{ font-size: 2.5em; margin: 0; color: #2c3e50; }}
+                p.subtitle {{ color: #7f8c8d; font-size: 1.1em; }}
+                
+                .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }}
+                
+                .card {{ background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; display: block; }}
+                .card:hover {{ transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }}
+                
+                .card-content {{ padding: 20px; }}
+                .card-date {{ font-size: 0.85em; color: #95a5a6; margin-bottom: 10px; }}
+                .card-title {{ font-size: 1.2em; margin: 0 0 15px 0; color: #2c3e50; line-height: 1.4; border: none; padding: 0; }}
+                .card-readmore {{ color: #3498db; font-weight: bold; font-size: 0.9em; }}
+                
+                .footer {{ margin-top: 60px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 0.9em; color: #7f8c8d; text-align: center; }}
             </style>
         </head>
         <body>
-            <h1>Gaia Blog - Latest Articles</h1>
-            <ul>
-                {links}
-            </ul>
+            <header>
+                <h1>Gaia Blog</h1>
+                <p class="subtitle">Daily Tech trends & Life Hacks provided by AI</p>
+            </header>
+            
+            <div class="grid">
+                {cards_html}
+            </div>
+            
+            <div class="footer">
+                <p>&copy; {datetime.now().year} Gaia Automated Content. All rights reserved.</p>
+            </div>
         </body>
         </html>
         """
         
         with open(os.path.join(self.output_dir, "index.html"), 'w', encoding='utf-8') as f:
             f.write(template)
-        print("Updated index.html")
+        print("Updated index.html with Grid Layout")
+        
+        # Also update sitemap whenever index is updated
+        self.generate_sitemap()
