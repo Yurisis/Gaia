@@ -52,6 +52,14 @@ def main():
     injector = AffiliateInjector(amazon_tag=AMAZON_TAG, rakuten_id=RAKUTEN_ID)
     generator = HtmlGenerator()
 
+    def clean_topic(text):
+        """Removes leading numbers, bullets, and whitespace from topic."""
+        # Remove leading bullets, numbers, dots, and whitespace
+        # e.g. "1. Topic", "- Topic", "123. Topic"
+        import re
+        cleaned = re.sub(r'^[\d\.\-\*\s]+', '', text)
+        return cleaned.strip()
+
     if args.bulk > 0:
         print(f"Starting Gaia Bulk Mode... Target: {args.bulk} articles")
         # Load topics
@@ -59,7 +67,7 @@ def main():
         if os.path.exists("config/topics.txt"):
             with open("config/topics.txt", "r", encoding="utf-8") as f:
                 topics_pool = [
-                    line.strip().lstrip('-').lstrip('*').strip() 
+                    clean_topic(line)
                     for line in f 
                     if line.strip() and len(line) < 50 and not line.strip().startswith("以下")
                 ]
@@ -84,7 +92,7 @@ def main():
             
             try:
                 print("Requesting content from Gemini (with 180s timeout)...")
-                response_text = client.generate_content(prompt, is_json=True)
+                response_text = client.generate_content(prompt, is_json=True) # Ensure JSON request
                 if not response_text:
                     print(f"Failed to generate batch for: {topics_str}. Skipping to next batch.")
                     processed += current_batch_size # Skip these as if processed to avoid infinite loop, or just skip
@@ -101,7 +109,19 @@ def main():
                     if clean_json.endswith("```"):
                         clean_json = clean_json[:-3].strip()
                 
-                articles = json.loads(clean_json)
+                try:
+                    articles = json.loads(clean_json)
+                except json.JSONDecodeError:
+                    print("JSON Decode Error. Retrying raw response cleanup...")
+                    # Sometimes Gemini returns extra text. Try to find [ ... ]
+                    start = clean_json.find('[')
+                    end = clean_json.rfind(']')
+                    if start != -1 and end != -1:
+                        clean_json = clean_json[start:end+1]
+                        articles = json.loads(clean_json)
+                    else:
+                        raise
+
                 for item in articles:
                     title = item.get('title', 'Untitled')
                     # Simple check if already exists to avoid duplicates
@@ -137,7 +157,7 @@ def main():
             try:
                 with open("config/topics.txt", "r", encoding="utf-8") as f:
                     lines = [
-                        line.strip().lstrip('-').lstrip('*').strip() 
+                        clean_topic(line)
                         for line in f 
                         if line.strip() and len(line) < 50 and not line.strip().startswith("以下")
                     ]
