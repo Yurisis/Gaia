@@ -25,12 +25,12 @@ def process_article(topic, title, content, injector, generator):
     """Common logic to process a single article."""
     # 2. Inject Affiliate Links
     print(f"Injecting affiliate links for: {title}")
-    amz_link = injector.generate_search_link(topic, "amazon")
-    rak_link = injector.generate_search_link(topic, "rakuten")
     
-    links_md = f"\n\n## 価格をチェックする\n- [Amazonで見る]({amz_link})\n- [楽天で見る]({rak_link})"
-    # Ensure content is string
-    full_content = str(content) + links_md
+    # Generate structured product card HTML
+    card_html = injector.generate_product_card(topic)
+    
+    # Ensure content is string and append card
+    full_content = str(content) + "\n\n" + card_html
     full_content = injector.inject_links(full_content)
 
     # 3. Publish Content
