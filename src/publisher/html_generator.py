@@ -2,6 +2,7 @@ import os
 import markdown
 import re
 from datetime import datetime
+from config.settings import GOOGLE_ANALYTICS_ID
 
 class HtmlGenerator:
     def __init__(self, output_dir="docs", base_url="https://yurisis.github.io/Gaia"):
@@ -34,6 +35,15 @@ class HtmlGenerator:
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>{title}</title>
             <meta name="description" content="{description}">
+            
+            <!-- Google Analytics 4 -->
+            <script async src="https://www.googletagmanager.com/gtag/js?id={GOOGLE_ANALYTICS_ID}"></script>
+            <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){{dataLayer.push(arguments);}}
+            gtag('js', new Date());
+            gtag('config', '{GOOGLE_ANALYTICS_ID}');
+            </script>
             
             <!-- OGP Tags -->
             <meta property="og:title" content="{title}" />

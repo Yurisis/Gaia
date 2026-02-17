@@ -48,8 +48,8 @@ class AffiliateInjector:
     <div class="product-info">
         <div class="product-title">{keyword} (検索結果)</div>
         <div class="product-btn-group">
-            <a href="{amz_link}" class="btn btn-amazon" target="_blank">Amazonで探す</a>
-            <a href="{rak_link}" class="btn btn-rakuten" target="_blank">楽天で探す</a>
+            <a href="{amz_link}" class="btn btn-amazon" target="_blank" onclick="gtag('event', 'click_amazon', {{'event_category': 'affiliate', 'event_label': '{keyword}'}})">Amazonで探す</a>
+            <a href="{rak_link}" class="btn btn-rakuten" target="_blank" onclick="gtag('event', 'click_rakuten', {{'event_category': 'affiliate', 'event_label': '{keyword}'}})">楽天で探す</a>
         </div>
     </div>
 </div>
