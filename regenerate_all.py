@@ -100,7 +100,7 @@ def regenerate_all_content():
                     # We need to add the "Product Card" at the bottom.
                     
                     try:
-                        product_card_html = affiliate.create_product_card(topic)
+                        product_card_html = affiliate.generate_product_card(topic)
                     except Exception as e:
                         print(f"    Affiliate Error for {topic}: {e}")
                         product_card_html = "" # Fail gracefully
