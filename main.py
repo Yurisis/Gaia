@@ -21,13 +21,17 @@ def deploy_to_github():
     except Exception as e:
         print(f"Deploy failed: {e}")
 
-def process_article(topic, title, content, injector, generator):
+def process_article(topic, title, content, injector, generator, search_query=None):
     """Common logic to process a single article."""
     # 2. Inject Affiliate Links
     print(f"Injecting affiliate links for: {title}")
     
+    # Use specific search query if available, otherwise topic
+    query = search_query if search_query else topic
+    print(f"  Using search query: {query}")
+
     # Generate structured product card HTML
-    card_html = injector.generate_product_card(topic)
+    card_html = injector.generate_product_card(query)
     
     # Ensure content is string and append card
     full_content = str(content) + "\n\n" + card_html
@@ -124,9 +128,11 @@ def main():
 
                 for item in articles:
                     title = item.get('title', 'Untitled')
+                    search_query = item.get('product_search_query')
+                    
                     # Simple check if already exists to avoid duplicates
                     # (Implementation for checking file existence could be more robust)
-                    process_article(item.get('topic', 'Unknown'), title, item.get('content', ''), injector, generator)
+                    process_article(item.get('topic', 'Unknown'), title, item.get('content', ''), injector, generator, search_query)
                     processed += 1
                 
                 # Update Index once per batch
@@ -182,7 +188,7 @@ def main():
             return
 
         # 2. Process and Save
-        process_article(topic, topic, content, injector, generator)
+        process_article(topic, topic, content, injector, generator, search_query=topic)
         
         # Update Index
         generator.update_index()

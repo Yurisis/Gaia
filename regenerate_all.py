@@ -88,23 +88,23 @@ def regenerate_all_content():
                     content = article.get("content", "")
                     
                     # Ensure topic exists
+                    search_query = article.get("product_search_query")
+                    
+                    # Ensure topic exists
                     topic = article.get("topic")
                     if not topic:
                         # Fallback: try to find topic in title or just use title
                         topic = title
 
                     # Inject Affiliate
-                    # Simple injection for now
-                    # We can use the affiliate injector to make a card
-                    # But the content already has "Rating" and "Merit" boxes from prompt.
-                    # We need to add the "Product Card" at the bottom.
+                    # Use search_query if available, else topic
+                    query = search_query if search_query else topic
                     
                     try:
-                        product_card_html = affiliate.generate_product_card(topic)
+                        product_card_html = affiliate.generate_product_card(query)
                     except Exception as e:
                         print(f"    Affiliate Error for {topic}: {e}")
                         product_card_html = "" # Fail gracefully
-
                     
                     # Append product card to content
                     content += f"\n\n{product_card_html}"
