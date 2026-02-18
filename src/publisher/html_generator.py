@@ -269,6 +269,14 @@ class HtmlGenerator:
                 .footer {{ margin-top: 60px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 0.9em; color: #7f8c8d; text-align: center; }}
             </style>
         </head>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={GOOGLE_ANALYTICS_ID}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){{dataLayer.push(arguments);}}
+      gtag('js', new Date());
+      gtag('config', '{GOOGLE_ANALYTICS_ID}');
+    </script>
         <body>
             <header>
                 <h1>Gaia Blog</h1>
