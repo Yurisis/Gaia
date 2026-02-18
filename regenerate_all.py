@@ -89,6 +89,8 @@ def regenerate_all_content():
                     
                     # Ensure topic exists
                     search_query = article.get("product_search_query")
+                    slug = article.get("slug")
+                    meta_description = article.get("meta_description")
                     
                     # Ensure topic exists
                     topic = article.get("topic")
@@ -110,12 +112,17 @@ def regenerate_all_content():
                     content += f"\n\n{product_card_html}"
                     
                     # Generate HTML
-                    # Use a fixed timestamp or just current time? Current time is fine.
-                    # Generate Filename
-                    from datetime import datetime
-                    filename = f"article_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{random.randint(100000, 999999)}.html"
-                    html_gen.generate_article(title, content, filename)
-                    print(f"  Generated: {title}")
+                    # Use slug if available, else timestamp
+                    if slug:
+                        filename = f"{slug}.html"
+                    else:
+                        # Fallback to timestamp
+                        from datetime import datetime
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                        filename = f"article_{timestamp}.html"
+
+                    html_gen.generate_article(title, content, filename, meta_description)
+                    print(f"  Generated: {title} ({filename})")
                     
             except json.JSONDecodeError as e:
                 print(f"  JSON Error in batch: {e}")

@@ -11,7 +11,7 @@ class HtmlGenerator:
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
 
-    def generate_article(self, title, markdown_content, filename):
+    def generate_article(self, title, markdown_content, filename, meta_description=None):
         """Converts Markdown to HTML and saves it."""
         
         # Process Shortcodes before Markdown conversion
@@ -20,12 +20,44 @@ class HtmlGenerator:
         # Enable attribute lists extension if needed
         html_content = markdown.markdown(processed_content, extensions=['extra'])
         
-        # OGP Description (First 100 chars of content, roughly)
-        # Strip HTML tags for description if possible, or just use title
-        description = f"{title}に関する詳細記事です。"
+        # Description fallback
+        if not meta_description:
+            # Strip tags for fallback
+            meta_description = f"{title}に関する詳細記事です。"
         
         # Article URL
         article_url = f"{self.base_url}/{filename}"
+        
+        # JSON-LD Structured Data
+        published_date = datetime.now().isoformat()
+        json_ld = f"""
+        <script type="application/ld+json">
+        {{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": "{title}",
+          "image": [
+            "https://via.placeholder.com/1200x675.png?text=Gaia+Blog" 
+           ],
+          "datePublished": "{published_date}",
+          "dateModified": "{published_date}",
+          "author": {{
+              "@type": "Person",
+              "name": "Gaia AI",
+              "url": "https://yurisis.github.io/Gaia/"
+          }},
+          "publisher": {{
+              "@type": "Organization",
+              "name": "Gaia Blog",
+              "logo": {{
+                "@type": "ImageObject",
+                "url": "https://via.placeholder.com/600x60.png?text=Gaia+Logo"
+              }}
+          }},
+          "description": "{meta_description}"
+        }}
+        </script>
+        """
 
         template = f"""
         <!DOCTYPE html>
@@ -34,7 +66,9 @@ class HtmlGenerator:
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>{title}</title>
-            <meta name="description" content="{description}">
+            <meta name="description" content="{meta_description}">
+            
+            {json_ld}
             
             <!-- Google Analytics 4 -->
             <script async src="https://www.googletagmanager.com/gtag/js?id={GOOGLE_ANALYTICS_ID}"></script>
@@ -49,7 +83,7 @@ class HtmlGenerator:
             <meta property="og:title" content="{title}" />
             <meta property="og:type" content="article" />
             <meta property="og:url" content="{article_url}" />
-            <meta property="og:description" content="{description}" />
+            <meta property="og:description" content="{meta_description}" />
             <meta property="og:site_name" content="Gaia Blog" />
             <meta property="og:locale" content="ja_JP" />
 

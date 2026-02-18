@@ -21,7 +21,7 @@ def deploy_to_github():
     except Exception as e:
         print(f"Deploy failed: {e}")
 
-def process_article(topic, title, content, injector, generator, search_query=None):
+def process_article(topic, title, content, injector, generator, search_query=None, slug=None, meta_description=None):
     """Common logic to process a single article."""
     # 2. Inject Affiliate Links
     print(f"Injecting affiliate links for: {title}")
@@ -38,11 +38,15 @@ def process_article(topic, title, content, injector, generator, search_query=Non
     full_content = injector.inject_links(full_content)
 
     # 3. Publish Content
-    # Use microsecond for uniqueness in bulk mode
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    filename = f"article_{timestamp}.html"
+    # Use slug if available, else timestamp
+    if slug:
+        filename = f"{slug}.html"
+    else:
+        # Fallback to timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+        filename = f"article_{timestamp}.html"
     
-    filepath = generator.generate_article(title, full_content, filename)
+    filepath = generator.generate_article(title, full_content, filename, meta_description)
     return filepath
 
 def main():
@@ -129,10 +133,12 @@ def main():
                 for item in articles:
                     title = item.get('title', 'Untitled')
                     search_query = item.get('product_search_query')
+                    slug = item.get('slug')
+                    meta_description = item.get('meta_description')
                     
                     # Simple check if already exists to avoid duplicates
                     # (Implementation for checking file existence could be more robust)
-                    process_article(item.get('topic', 'Unknown'), title, item.get('content', ''), injector, generator, search_query)
+                    process_article(item.get('topic', 'Unknown'), title, item.get('content', ''), injector, generator, search_query, slug, meta_description)
                     processed += 1
                 
                 # Update Index once per batch
@@ -188,7 +194,7 @@ def main():
             return
 
         # 2. Process and Save
-        process_article(topic, topic, content, injector, generator, search_query=topic)
+        process_article(topic, topic, content, injector, generator, search_query=topic, slug=None, meta_description=None)
         
         # Update Index
         generator.update_index()
