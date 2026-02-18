@@ -201,8 +201,16 @@ class HtmlGenerator:
 
     def generate_sitemap(self):
         """Generates sitemap.xml."""
-        files = [f for f in os.listdir(self.output_dir) if f.startswith("article_") and f.endswith(".html")]
-        files.sort(reverse=True)
+        # Include all html files except system files
+        files = [
+            f for f in os.listdir(self.output_dir) 
+            if f.endswith(".html") 
+            and f != "index.html" 
+            and not f.startswith("google")
+            and not f.startswith("test_")
+        ]
+        # Sort by modification time (newest first)
+        files.sort(key=lambda x: os.path.getmtime(os.path.join(self.output_dir, x)), reverse=True)
 
         sitemap_content = """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -236,8 +244,16 @@ class HtmlGenerator:
 
     def update_index(self):
         """Updates the index.html file with a nice grid layout."""
-        files = [f for f in os.listdir(self.output_dir) if f.startswith("article_") and f.endswith(".html")]
-        files.sort(reverse=True) # Newest first
+        # Include all html files except system files
+        files = [
+            f for f in os.listdir(self.output_dir) 
+            if f.endswith(".html") 
+            and f != "index.html" 
+            and not f.startswith("google")
+            and not f.startswith("test_")
+        ]
+        # Sort by modification time (newest first)
+        files.sort(key=lambda x: os.path.getmtime(os.path.join(self.output_dir, x)), reverse=True)
 
         # Extract titles from files to display in index
         articles_data = []
