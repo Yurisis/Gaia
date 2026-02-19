@@ -96,7 +96,7 @@ def main():
 
         total_needed = args.bulk
         processed = 0
-        batch_size = 3
+        batch_size = 1
 
         while processed < total_needed:
             current_batch_size = min(batch_size, total_needed - processed)
@@ -169,8 +169,8 @@ def main():
                 continue
             
             if processed < total_needed:
-                print("Waiting 5 seconds before next batch...")
-                time.sleep(5)
+                print("Safety Interval: Waiting 60 seconds to respect API limits...")
+                time.sleep(60)
         
         # Log Generation
         from src.utils.logger import log_generation
