@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://yurisis.github.io/Gaia/sitemap.xml

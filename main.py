@@ -198,8 +198,44 @@ def main():
             print("Failed to generate content.")
             return
 
+        if args.type == "article":
+            try:
+                # Clean up JSON
+                clean_json = content.strip()
+                if clean_json.startswith("```json"):
+                    clean_json = clean_json[7:]
+                if clean_json.endswith("```"):
+                    clean_json = clean_json[:-3]
+                
+                if "[" in clean_json and clean_json.strip().startswith("["):
+                     # Sometimes it returns a list even for single
+                    article_data = json.loads(clean_json)[0]
+                else:
+                    article_data = json.loads(clean_json)
+
+                title = article_data.get('title', topic)
+                body = article_data.get('content', '')
+                slug = article_data.get('slug')
+                meta_description = article_data.get('meta_description')
+                search_query = article_data.get('product_search_query', topic)
+
+            except json.JSONDecodeError as e:
+                print(f"JSON Parse Error: {e}. Falling back to raw content.")
+                title = topic
+                body = content
+                slug = None
+                meta_description = None
+                search_query = topic
+        else:
+            # News/Summary mode (still Markdown)
+            title = topic
+            body = content
+            slug = None
+            meta_description = None
+            search_query = topic
+
         # 2. Process and Save
-        process_article(topic, topic, content, injector, generator, search_query=topic, slug=None, meta_description=None)
+        process_article(topic, title, body, injector, generator, search_query, slug, meta_description)
         
         # Update Index
         generator.update_index()
