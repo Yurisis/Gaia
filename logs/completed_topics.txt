@@ -6,3 +6,4 @@ Elgato（配信者向け機材「Stream Deck」）
 ネスレ (Nestle)（コーヒー）
 Nespresso (ネスプレッソ)（コーヒーメーカー）
 茅乃舎（出汁・調味料）
+ロジクール (Logicool)（PC周辺機器）
