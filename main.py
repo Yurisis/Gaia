@@ -80,6 +80,16 @@ def main():
                     if line.strip() and len(line) < 50 and not line.strip().startswith("以下")
                 ]
         
+        # Deduplication Logic
+        completed_topics = set()
+        if os.path.exists("logs/completed_topics.txt"):
+             with open("logs/completed_topics.txt", "r", encoding="utf-8") as f:
+                completed_topics = {line.strip() for line in f if line.strip()}
+        
+        original_count = len(topics_pool)
+        topics_pool = [t for t in topics_pool if t not in completed_topics]
+        print(f"Loaded {original_count} topics. {len(completed_topics)} already done. Remaining: {len(topics_pool)}")
+        
         if not topics_pool:
             print("No topics found in config/topics.txt for bulk generation.")
             return
@@ -140,6 +150,10 @@ def main():
                     # (Implementation for checking file existence could be more robust)
                     process_article(item.get('topic', 'Unknown'), title, item.get('content', ''), injector, generator, search_query, slug, meta_description)
                     processed += 1
+                    
+                    # Log as completed
+                    with open("logs/completed_topics.txt", "a", encoding="utf-8") as f:
+                        f.write(item.get('topic', 'Unknown') + "\n")
                 
                 # Rebuild Index and Sitemap
                 generator.update_index()
@@ -179,7 +193,18 @@ def main():
                         if line.strip() and len(line) < 50 and not line.strip().startswith("以下")
                     ]
                 if lines:
-                    topic = random.choice(lines)
+                    # Deduplication for single mode
+                    completed_topics = set()
+                    if os.path.exists("logs/completed_topics.txt"):
+                        with open("logs/completed_topics.txt", "r", encoding="utf-8") as f:
+                            completed_topics = {line.strip() for line in f if line.strip()}
+                    
+                    available_topics = [t for t in lines if t not in completed_topics]
+                    if not available_topics:
+                        print("All topics in config/topics.txt have been generated! Please add more topics.")
+                        return
+                        
+                    topic = random.choice(available_topics)
             except Exception as e:
                 print(f"Error reading topics.txt: {e}")
 
@@ -244,6 +269,10 @@ def main():
         # Log Generation
         from src.utils.logger import log_generation
         log_generation(1, "Single")
+        
+        # Log as completed
+        with open("logs/completed_topics.txt", "a", encoding="utf-8") as f:
+            f.write(topic + "\n")
         
         print("Done!")
 
