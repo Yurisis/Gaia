@@ -138,6 +138,10 @@ def regenerate_all_content():
     html_gen.update_index()
     html_gen.generate_sitemap()
     print("Regeneration complete. Index and Sitemap updated.")
+    
+    # Log Generation
+    from src.utils.logger import log_generation
+    log_generation(len(topics), "RegenerateAll")
 
 if __name__ == "__main__":
     regenerate_all_content()

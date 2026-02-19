@@ -141,9 +141,10 @@ def main():
                     process_article(item.get('topic', 'Unknown'), title, item.get('content', ''), injector, generator, search_query, slug, meta_description)
                     processed += 1
                 
-                # Update Index once per batch
+                # Rebuild Index and Sitemap
                 generator.update_index()
-                print(f"Batch completed. Total processed: {processed}/{total_needed}")
+                generator.generate_sitemap()
+                print("Batch completed.")
                 
             except Exception as e:
                 print(f"Error in batch processing: {e}")
