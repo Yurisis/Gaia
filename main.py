@@ -158,6 +158,10 @@ def main():
                 print("Waiting 5 seconds before next batch...")
                 time.sleep(5)
         
+        # Log Generation
+        from src.utils.logger import log_generation
+        log_generation(processed, "Bulk")
+
         # Final deploy
         deploy_to_github()
 
@@ -200,6 +204,11 @@ def main():
         # Update Index
         generator.update_index()
         deploy_to_github()
+        
+        # Log Generation
+        from src.utils.logger import log_generation
+        log_generation(1, "Single")
+        
         print("Done!")
 
 if __name__ == "__main__":
