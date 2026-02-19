@@ -1,3 +1,4 @@
 Deduplication Test
 カリタ (Kalita)（家庭用コーヒーミル・ドリッパー）
 DJI (ディージェーアイ)（ドローン・ジンバル）
+Elgato（配信者向け機材「Stream Deck」）
