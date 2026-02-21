@@ -99,6 +99,7 @@ def regenerate_all_articles():
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>{title}</title>
                 <meta name="description" content="{description}">
+                <link rel="icon" href="favicon.png" type="image/png">
                 
                 <!-- OGP Tags -->
                 <meta property="og:title" content="{title}" />
@@ -135,7 +136,11 @@ def regenerate_all_articles():
                     .chat-box.right .chat-bubble::after {{ left: auto; right: -10px; border-right: none; border-left: 15px solid #e3f2fd; }}
 
                     /* Merit/Demerit Boxes */
-                    .box-common {{ padding: 20px; border-radius: 5px; margin: 25px 0; border: 1px solid transparent; }}
+                    .box-common, .merit-box, .demerit-box {{ padding: 20px; border-radius: 5px; margin: 25px 0; border: 1px solid transparent; }}
+                    .box-common {{ background-color: #f9f9f9; border-color: #ddd; }}
+                    .box-common table {{ width: 100%; border-collapse: collapse; margin-top: 15px; }}
+                    .box-common th, .box-common td {{ padding: 10px; border: 1px solid #ddd; text-align: left; }}
+                    .box-common th {{ background-color: #f1f5f9; width: 30%; color: #334155; }}
                     .merit-box {{ background-color: #f0f9ff; border-color: #bae6fd; color: #0369a1; }}
                     .merit-box::before {{ content: '✅ メリット'; display: block; font-weight: bold; margin-bottom: 10px; font-size: 1.1em; }}
                     .demerit-box {{ background-color: #fef2f2; border-color: #fecaca; color: #b91c1c; }}
