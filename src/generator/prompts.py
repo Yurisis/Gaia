@@ -9,7 +9,7 @@ class Prompts:
     【必須要素】
     1. **吹き出し会話**: [[CHAT_L: 悩み]] / [[CHAT_R: 解決]]
     2. **メリット・デメリット**: <div class="merit-box"> / <div class="demerit-box"> (リスト形式)
-    3. **スペック表**: <div class="box-common"> (数値必須)
+    3. **スペック表**: <div class="box-common"><table><tr><th>項目</th><td>数値</td></tr>...</table></div> (表組み形式・数値必須)
     4. **評価**: <div class="rating-box"> (星評価)
 
     【執筆ルール】
@@ -40,7 +40,7 @@ class Prompts:
     1. **ニッチ特化**: 「特定の具体的な悩み」を解決する記事にする。
     2. **HTML装飾とスペック重視**:
        - 会話: [[CHAT_L: 悩み...]] / [[CHAT_R: 解決...]]
-       - スペック: <div class="box-common" style="background:#f9f9f9; border:1px solid #ddd;"><strong>【スペック】</strong><ul><li>数値...</li></ul></div>
+       - スペック: <div class="box-common"><strong>【スペック】</strong><table><tbody><tr><th>項目</th><td>数値</td></tr></tbody></table></div>
        - メリット: <div class="merit-box"><ul><li>...</li></ul></div>
        - デメリット: <div class="demerit-box"><ul><li>...</li></ul></div>
        - 評価: <div class="rating-box"><span class="stars">★★★★★</span></div>
