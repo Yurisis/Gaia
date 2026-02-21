@@ -67,6 +67,7 @@ class HtmlGenerator:
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>{title}</title>
             <meta name="description" content="{meta_description}">
+            <link rel="icon" href="favicon.png" type="image/png">
             
             {json_ld}
             
@@ -307,6 +308,7 @@ class HtmlGenerator:
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Gaia Blog - Automated Tech & Life Hacks</title>
             <meta name="description" content="AIが自動生成する最新のガジェット・ライフハックブログ。">
+            <link rel="icon" href="favicon.png" type="image/png">
             <style>
                 body {{ font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f4f6f8; color: #333; }}
                 header {{ text-align: center; margin-bottom: 50px; padding: 40px 0; }}
